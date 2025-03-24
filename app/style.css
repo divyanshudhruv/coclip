@@ -1,0 +1,320 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@200;300;400;500;600;700;800&display=swap');
+
+body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    margin: 0;
+    background-color: #F8FAFC;
+    font-family: "Plus Jakarta Sans", sans-serif;
+    overflow-x: hidden;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+.containerMax {
+    display: flex;
+    width: 100vw;
+    height: 100vh;
+    background-color: transparent;
+    align-items: center;
+    justify-content: start;
+    flex-direction: column;
+}
+
+.containerMax .nav {
+    display: flex;
+    width: 100%;
+    height: 60px;
+    background-color: transparent;
+    align-items: center;
+    justify-content: space-between;
+    flex-direction: row;
+    padding-inline: 30px;
+    padding-right: 60px;
+    border-bottom: 1px solid #E5E7EB;
+    overflow: hidden;
+
+    .logo {
+        display: flex;
+        position: relative;
+        width: fit-content;
+        height: fit-content;
+        align-items: center;
+        justify-content: center;
+        scale: 1;
+        background-position: center;
+
+        &::after {
+            content: 'CoClip';
+            position: absolute;
+            left: 80px;
+            color: #403E43;
+            font-size: 19px;
+            font-weight: 700;
+        }
+    }
+
+    .auth {
+        display: flex;
+        position: relative;
+        width: 42px;
+        height: 42px;
+        background-color: transparent;
+        border: 1.3px solid #E5E7EB;
+        align-items: center;
+        justify-content: center;
+        scale: 1;
+        background-position: center;
+        border-radius: 10px;
+        color: #737374;
+        transition: .2s;
+        cursor: pointer;
+
+        &:hover {
+            background-color: #E5E7EB80;
+        }
+    }
+}
+
+.containerFull {
+    display: flex;
+    position: relative;
+    width: 100%;
+    height: calc(100% - 60px);
+    align-items: center;
+    justify-content: center;
+    background-color: transparent;
+    max-width: 1200px;
+}
+
+.containerMax .containerIn {
+    display: flex;
+    position: relative;
+    width: 50%;
+    left: 0;
+    height: calc(100%);
+    background-color: transparent;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+
+.containerIn .textTop {
+    display: flex;
+    font-size: 90px;
+    color: #403E43;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 800;
+    letter-spacing: -8px;
+}
+
+.containerIn .textarea {
+    display: flex;
+    position: relative;
+    width: fit-content;
+    height: fit-content;
+    background-color: transparent;
+    flex-direction: column;
+    align-items: center;
+    justify-content: start;
+}
+
+.textarea .input {
+    background-color: #F9FBFC;
+    resize: none;
+    padding: 25px;
+    border-radius: 15px;
+    width: 470px;
+    height: 190px;
+}
+
+.textSmall {
+    display: flex;
+    font-size: 13.5px;
+    color: #737374;
+    width: fit-content;
+    font-weight: 460;
+    margin-bottom: 15px;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+
+    text-align: center;
+}
+
+.textarea .buttonCont {
+    display: flex;
+    position: absolute;
+    right: 15px;
+    bottom: 15px;
+    width: fit-content;
+    height: fit-content;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.textarea .button {
+    display: flex;
+    position: relative;
+
+    height: 39px;
+    border-radius: 10px;
+    box-shadow: none;
+    background-color: #F8FAFC;
+    cursor: pointer;
+
+    &:hover {
+        background-color: #E5E7EB;
+    }
+}
+
+.space {
+    display: flex;
+    width: 0;
+    height: 30px;
+}
+
+.containerMax .containerOut {
+    display: flex;
+    position: relative;
+    width: 50%;
+    left: 0;
+    height: calc(100%);
+    background-color: transparent;
+    align-items: center;
+    justify-content: center;
+
+}
+
+.containerOut .retrieveCont {
+    display: flex;
+    position: relative;
+    height: 90%;
+    width: 80%;
+    max-height: 542px;
+    border: 1.2px solid #e5e5e5;
+    background-color: #F9FBFC;
+    border-radius: 15px;
+    align-items: center;
+    justify-content: start;
+    flex-direction: column;
+    overflow: hidden;
+    margin-left: 20px;
+
+    .top {
+        display: flex;
+        position: relative;
+        width: 100%;
+        height: 55px;
+        background-color: transparent;
+        border-bottom: 1px solid #e5e5e5;
+        padding-inline: 20px;
+        align-items: center;
+        justify-content: space-between;
+        flex-direction: row;
+
+        .textHeading {
+            display: flex;
+            font-size: 15px;
+            color: #737374;
+            font-weight: 500;
+            width: fit-content !important;
+            background-color: transparent;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        .inputSearch {
+            min-width: 200px;
+            display: flex;
+            position: relative;
+            background-color: transparent;
+        }
+    }
+}
+
+.auth1 {
+    display: flex;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    margin: auto;
+    align-items: center;
+    justify-content: center;
+}
+
+.buttonAuth {
+    display: flex;
+    position: relative;
+
+    height: 41px;
+    border-radius: 7px;
+    cursor: pointer;
+}
+
+
+@media screen and (max-width: 1040px) {
+    .containerIn {
+        scale: 0.9;
+    }
+
+    .containerOut {
+        scale: 0.9;
+    }
+
+    .containerOut .retrieveCont {
+        margin-left: 30px;
+    }
+
+    .containerMax .containerOut {
+        width: 100%;
+    }
+
+    .containerOut .retrieveCont {
+        width: 100%;
+    }
+}
+
+@media screen and (max-width: 870px) {
+    .containerFull {
+        flex-direction: column;
+        height: fit-content;
+    }
+
+    .containerMax {
+        height: fit-content;
+    }
+
+    body {
+        height: fit-content;
+    }
+
+    .containerMax .containerIn {
+        width: 100vw;
+        height: 50%;
+    }
+
+    .containerMax .containerOut {
+        width: 100vw;
+        height: 50%;
+    }
+
+    .containerOut .retrieveCont {
+        width: 90%;
+        margin-left: 0;
+        width: 500px !important;
+    }
+}
+
+.retrieveCont {
+    min-height: 400px;
+    width: 100%;
+}
