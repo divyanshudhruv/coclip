@@ -272,9 +272,8 @@ html {
     }
 
     .containerOut .retrieveCont {
-        width: 90%;
-        margin-left: 0;
-        width: 500px !important;
+        width: 470px !important;
+        left: -10px;
     }
 }
 
@@ -485,5 +484,51 @@ html {
             background-color: #e5e5e5;
             color: #737374;
         }
+    }
+}
+
+
+
+@keyframes fadeUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-up-1 {
+    animation: fadeUp 0.6s ease-out forwards;
+}
+
+.fade-up-2 {
+    animation: fadeUp 0.6s ease-out forwards;
+}
+
+.fade-up-3 {
+    animation: fadeUp 0.6s ease-out forwards;
+}
+
+.fade-up-4 {
+    animation: fadeUp 0.6s ease-out forwards;
+}
+
+.fade-up-5 {
+    animation: fadeUp 0.6s ease-out forwards;
+}
+
+@keyframes fadeUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
     }
 }

@@ -530,7 +530,7 @@ export default function Home() {
     <>
       <div className="containerMax">
         <div className="nav">
-          <div className="logo">
+          <div className="logo ">
             <Image
               src={"/logo.png"}
               alt="logo"
@@ -657,7 +657,7 @@ export default function Home() {
               ref={confettiRef}
               className="absolute left-0 top-0 z-0 size-full"
             />
-            <FlipText className="textTop">CoClip </FlipText>
+            <FlipText className="textTop" key="static-flip-text">CoClip</FlipText>
             {/* <AvatarCirclesDemo /> */}
             <div style={{ scale: "0.9" }}>
               {" "}
@@ -668,13 +668,13 @@ export default function Home() {
             <div className="space"></div>{" "}
             <div className="space" style={{ height: "10px" }}></div>
             <div className="textarea">
-              <div className="textSmall">
+              <div className="textSmall fade-up">
                 Press Enter to sync text across your devices. Paste to retrieve
                 clipboard content.
               </div>
               <Textarea
                 placeholder="Paste your text here. (Shift + Enter for new line)"
-                className="input"
+                className="input fade-up-2"
                 value={copiedText}
                 onChange={(e) => {
                   setCopiedText(e.target.value);
@@ -691,20 +691,20 @@ export default function Home() {
               ></Textarea>
               <div className="buttonCont">
                 <Button
-                  className="bg-white text-[#737373] border border-[#E5E5E5] button"
+                  className="bg-white text-[#737373] border border-[#E5E5E5] button fade-up-5"
                   onClick={() => window.location.reload()}
                 >
                   Retrieve <CloudDownload />
                 </Button>
                 <Button
-                  className="bg-white text-[#737373] border border-[#E5E5E5] button"
+                  className="bg-white text-[#737373] border border-[#E5E5E5] button fade-up-6"
                   onClick={() => handleSubmit()}
                 >
                   Paste <ArrowRightSquare />
                 </Button>
               </div>
             </div>
-            <div className="textSmall" style={{ marginTop: "25px" }}>
+            <div className="textSmall fade-up-3" style={{ marginTop: "25px" }}>
               Made by
               <div style={{ scale: "0.8" }}>
                 <AvatarCirclesDemo />
@@ -712,7 +712,7 @@ export default function Home() {
             </div>
           </div>
           <div className="containerOut">
-            <div className="retrieveCont">
+            <div className="retrieveCont ">
               <div className="top">
                 {" "}
                 <div className="textHeading">Your board</div>{" "}
@@ -755,7 +755,7 @@ export default function Home() {
 
 export function AnimatedGradientTextDemo() {
   return (
-    <div className="group relative mx-auto flex items-center justify-center rounded-full px-4 py-1.5 shadow-[inset_0_-8px_10px_#8fdfff1f] transition-shadow duration-500 ease-out hover:shadow-[inset_0_-5px_10px_#8fdfff3f] ">
+    <div className="fade-up-4 group relative mx-auto flex items-center justify-center rounded-full px-4 py-1.5 shadow-[inset_0_-8px_10px_#8fdfff1f] transition-shadow duration-500 ease-out hover:shadow-[inset_0_-5px_10px_#8fdfff3f] ">
       <span
         className={cn(
           "absolute inset-0 block h-full w-full animate-gradient rounded-[inherit] bg-gradient-to-r from-[#ffaa40]/50 via-[#9c40ff]/50 to-[#ffaa40]/50 bg-[length:300%_100%] p-[1px]"
@@ -770,7 +770,7 @@ export function AnimatedGradientTextDemo() {
         }}
       />
       🎉 <hr className="mx-2 h-4 w-px shrink-0 bg-neutral-500" />
-      <AnimatedGradientText className="text-sm font-medium">
+      <AnimatedGradientText className="text-sm font-medium  ">
         Introducing CoClip
       </AnimatedGradientText>
       <ChevronRight
