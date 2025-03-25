@@ -36,7 +36,7 @@ const avatars = [
   },
 ];
 
-export function AvatarCirclesDemo() {
+function AvatarCirclesDemo() {
   return <AvatarCircles numPeople={0} avatarUrls={avatars} />;
 }
 
