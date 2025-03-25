@@ -1,5 +1,7 @@
 "use client";
 import Image from "next/image";
+import { ConfettiButton } from "@/components/magicui/confetti";
+
 import { toast } from "sonner";
 import "./style.css";
 import { Textarea } from "@/components/ui/textarea";
@@ -451,10 +453,15 @@ export default function Home() {
       return null;
     }
   }
+
+  function fire() {
+    confettiRef.current?.fire({});
+  }
   async function handleSubmit() {
     if (!copiedText) return;
-    confettiRef.current?.fire({});
+
     setIsButtonloading(true);
+
     const {
       data: { session },
     } = await supabase.auth.getSession();
@@ -513,10 +520,15 @@ export default function Home() {
           toast.success("New clip added successfully.");
           setCopiedText("");
           setIsButtonloading(false);
+
+          // Ensure confetti fires after successful update
         }
       } catch (error) {
         console.error("An unexpected error occurred:", error);
+        setIsButtonloading(false); // Reset loading state in case of error
       }
+    } else {
+      setIsButtonloading(false); // Reset loading state if no userId
     }
   }
 
@@ -677,10 +689,8 @@ export default function Home() {
                   // Scroll to the bottom of the textarea
                   e.target.scrollTop = e.target.scrollHeight;
                 }}
-                disabled={isButtonLoading}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" && !e.shiftKey) {
-                    e.preventDefault();
                     handleSubmit();
                   }
                 }}
@@ -695,14 +705,16 @@ export default function Home() {
                 </Button>
                 <Button
                   className="bg-white text-[#737373] border border-[#E5E5E5] button fade-up-6"
-                  onClick={() => handleSubmit()}
+                  onClick={() => {
+                    handleSubmit();
+                  }}
                 >
                   Paste <ArrowRightSquare />
                 </Button>
               </div>
             </div>
             <div className="textSmall fade-up-3" style={{ marginTop: "25px" }}>
-              Made by
+              Made by{" "}
               <div style={{ scale: "0.8" }}>
                 <AvatarCirclesDemo />
               </div>
