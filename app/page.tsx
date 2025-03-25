@@ -1,6 +1,5 @@
 "use client";
 import Image from "next/image";
-import { ConfettiButton } from "@/components/magicui/confetti";
 
 import { toast } from "sonner";
 import "./style.css";
