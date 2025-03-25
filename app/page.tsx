@@ -752,7 +752,7 @@ export default function Home() {
   );
 }
 
-export function AnimatedGradientTextDemo() {
+function AnimatedGradientTextDemo() {
   return (
     <div className="fade-up-4 group relative mx-auto flex items-center justify-center rounded-full px-4 py-1.5 shadow-[inset_0_-8px_10px_#8fdfff1f] transition-shadow duration-500 ease-out hover:shadow-[inset_0_-5px_10px_#8fdfff3f] ">
       <span
