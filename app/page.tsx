@@ -135,22 +135,9 @@ export default function Home() {
 
                   const hours = Math.floor(diff / (1000 * 60 * 60));
 
-                  let timeAgo;
-                  if (minutes < 60) {
-                    timeAgo =
-                      minutes === 1
-                        ? `${minutes} min ago`
-                        : `${minutes} mins ago`;
-                  } else if (hours < 24) {
-                    timeAgo =
-                      hours === 1 ? `${hours} hr ago` : `${hours} hrs ago`;
-                  } else {
-                    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-                    timeAgo =
-                      days === 1 ? `${days} day ago` : `${days} days ago`;
-                  }
+                  
 
-                  timeDiv.textContent = timeAgo;
+                  timeDiv.textContent = clip.time;
                   copiedDiv.appendChild(timeDiv);
 
                   const iconsDiv = document.createElement("div");
@@ -402,7 +389,6 @@ export default function Home() {
   async function handleSubmit() {
     if (!copiedText) return;
     confettiRef.current?.fire({});
-
     const {
       data: { session },
     } = await supabase.auth.getSession();
@@ -413,54 +399,54 @@ export default function Home() {
     const year = today.getFullYear();
     const formattedDate = `${day}${
       day === 1 || day === 21 || day === 31
-        ? "st"
-        : day === 2 || day === 22
-        ? "nd"
-        : day === 3 || day === 23
-        ? "rd"
-        : "th"
+      ? "st"
+      : day === 2 || day === 22
+      ? "nd"
+      : day === 3 || day === 23
+      ? "rd"
+      : "th"
     } ${month} ${year}`;
 
     if (userId) {
       try {
-        const { data: userData, error: userError } = await supabase
-          .from("users")
-          .select("history")
-          .eq("uid", userId)
-          .single();
+      const { data: userData, error: userError } = await supabase
+        .from("users")
+        .select("history")
+        .eq("uid", userId)
+        .single();
 
-        if (userError) {
-          console.error("Error fetching user data:", userError.message);
-          return;
-        }
+      if (userError) {
+        console.error("Error fetching user data:", userError.message);
+        return;
+      }
 
-        const existingHistory = userData?.history || {};
+      const existingHistory = userData?.history || {};
 
-        const updatedHistory = { ...existingHistory };
-        const clipObject = {
-          text: copiedText,
-          time: "1 min ago",
-          id: Math.floor(100000 + Math.random() * 900000).toString(),
-        };
+      const updatedHistory = { ...existingHistory };
+      const clipObject = {
+        text: copiedText,
+        time: "1 min ago",
+        id: Math.floor(100000 + Math.random() * 900000).toString(),
+      };
 
-        if (updatedHistory[formattedDate]) {
-          updatedHistory[formattedDate].push(clipObject);
-        } else {
-          updatedHistory[formattedDate] = [clipObject];
-        }
+      if (updatedHistory[formattedDate]) {
+        updatedHistory[formattedDate].unshift(clipObject);
+      } else {
+        updatedHistory[formattedDate] = [clipObject];
+      }
 
-        const { error: updateError } = await supabase
-          .from("users")
-          .update({ history: updatedHistory })
-          .eq("uid", userId);
+      const { error: updateError } = await supabase
+        .from("users")
+        .update({ history: updatedHistory })
+        .eq("uid", userId);
 
-        if (updateError) {
-          console.error("Error updating history:", updateError.message);
-        } else {
-          console.log("History updated successfully");
-        }
+      if (updateError) {
+        console.error("Error updating history:", updateError.message);
+      } else {
+        console.log("History updated successfully");
+      }
       } catch (error) {
-        console.error("An unexpected error occurred:", error);
+      console.error("An unexpected error occurred:", error);
       }
     }
   }
