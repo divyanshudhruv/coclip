@@ -453,9 +453,9 @@ export default function Home() {
     }
   }
 
-  function fire() {
-    confettiRef.current?.fire({});
-  }
+  // function fire() {
+  //   confettiRef.current?.fire({});
+  // }
   async function handleSubmit() {
     if (!copiedText) return;
 
@@ -694,6 +694,7 @@ export default function Home() {
                   }
                 }}
                 spellCheck={false}
+                disabled={isButtonLoading}
               ></Textarea>
               <div className="buttonCont">
                 <Button
