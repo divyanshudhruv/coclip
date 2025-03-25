@@ -1,8 +1,6 @@
 "use client";
 import Image from "next/image";
 import { toast } from "sonner";
-import { Auth } from "@/my-ui/auth";
-import { DotPatternDemo } from "@/my-ui/dot-pattern";
 import "./style.css";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@radix-ui/react-label";
@@ -10,27 +8,13 @@ import { FlipText } from "@/components/magicui/flip-text";
 import { AvatarCircles } from "@/components/magicui/avatar-circles";
 import { Button } from "@/components/ui/button";
 import { AnimatedGradientText } from "@/components/magicui/animated-gradient-text";
-import {
-  ChevronRight,
-  Copy,
-  Delete,
-  LucideSquareArrowOutUpRight,
-  Settings,
-} from "lucide-react";
+import { ChevronRight, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useEffect, useRef, useState } from "react";
-import { AnimatedShinyText } from "@/components/magicui/animated-shiny-text";
 import { Pointer } from "@/components/magicui/pointer";
 import { Confetti, type ConfettiRef } from "@/components/magicui/confetti";
 import { ShinyButton } from "@/components/magicui/shiny-button";
-import {
-  ArrowRight,
-  ArrowRightIcon,
-  ArrowRightSquare,
-  ClipboardPenLine,
-  CloudDownload,
-  User2Icon,
-} from "lucide-react";
+import { ArrowRightSquare, CloudDownload, User2Icon } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import {
   Dialog,
@@ -66,6 +50,7 @@ export default function Home() {
   const [loginSuccessful, setLoginSuccessful] = useState(false);
   const [copiedText, setCopiedText] = useState("");
   const [userID, setUserID] = useState("");
+  const [isButtonLoading, setIsButtonloading] = useState(false);
 
   async function handleLogout() {
     const emptyDiv = document.getElementById("emptyDiv");
@@ -167,12 +152,6 @@ export default function Home() {
 
                     const timeDiv = document.createElement("div");
                     timeDiv.className = "time";
-                    const clipTime = new Date();
-                    const now = new Date();
-                    const diff = now.getTime() - clipTime.getTime();
-                    const minutes = Math.floor(diff / (1000 * 60));
-
-                    const hours = Math.floor(diff / (1000 * 60 * 60));
 
                     timeDiv.textContent = clip.time;
                     copiedDiv.appendChild(timeDiv);
@@ -202,9 +181,9 @@ export default function Home() {
                       }
                     };
                     const copyIcon = document.createElement("div");
-                    (copyIcon.innerHTML =
-                      '<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 20 20"><path fill="currentColor" d="M6 6V2c0-1.1.9-2 2-2h10a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-4v4a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V8c0-1.1.9-2 2-2h4zm2 0h4a2 2 0 0 1 2 2v4h4V2H8v4zM2 8v10h10V8H2z"/></svg>'),
-                      copyDiv.appendChild(copyIcon);
+                    copyIcon.innerHTML =
+                      '<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 20 20"><path fill="currentColor" d="M6 6V2c0-1.1.9-2 2-2h10a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-4v4a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V8c0-1.1.9-2 2-2h4zm2 0h4a2 2 0 0 1 2 2v4h4V2H8v4zM2 8v10h10V8H2z"/></svg>';
+                    copyDiv.appendChild(copyIcon);
                     iconsDiv.appendChild(copyDiv);
 
                     const deleteDiv = document.createElement("div");
@@ -214,9 +193,9 @@ export default function Home() {
                     deleteDiv.onclick = () =>
                       deleteClipFromHistory(clip.id, userID);
                     const deleteIcon = document.createElement("div");
-                    (deleteIcon.innerHTML =
-                      '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="m13.5 10l4 4m0-4l-4 4m6.095 4.5H9.298a2 2 0 0 1-1.396-.568l-5.35-5.216a1 1 0 0 1 0-1.432l5.35-5.216A2 2 0 0 1 9.298 5.5h10.297c.95 0 2.223.541 2.223 1.625v9.75c0 1.084-1.273 1.625-2.223 1.625Z"/></svg>'),
-                      deleteDiv.appendChild(deleteIcon);
+                    deleteIcon.innerHTML =
+                      '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="m13.5 10l4 4m0-4l-4 4m6.095 4.5H9.298a2 2 0 0 1-1.396-.568l-5.35-5.216a1 1 0 0 1 0-1.432l5.35-5.216A2 2 0 0 1 9.298 5.5h10.297c.95 0 2.223.541 2.223 1.625v9.75c0 1.084-1.273 1.625-2.223 1.625Z"/></svg>';
+                    deleteDiv.appendChild(deleteIcon);
                     iconsDiv.appendChild(deleteDiv);
 
                     copiedDiv.appendChild(iconsDiv);
@@ -273,7 +252,18 @@ export default function Home() {
             table: "users",
             filter: `uid=eq.${userID}`,
           },
-          (payload: { new: { history?: { [key: string]: any } } }) => {
+          (_event: {
+            new: {
+              history?: {
+                [key: string]: Array<{
+                  text: string;
+                  time: string;
+                  id: string;
+                }>;
+              };
+            };
+          }) => {
+            console.log(_event); // Temporary usage to avoid unused variable error
             loadHistory();
           }
         )
@@ -318,7 +308,6 @@ export default function Home() {
   async function insertDataToSupabse() {
     const {
       data: { session },
-      error: sessionError,
     } = await supabase.auth.getSession();
     const { error: insertError } = await supabase.from("users").insert([
       {
@@ -386,7 +375,9 @@ export default function Home() {
 
       const history = user.history;
 
-      let updatedHistory: { [key: string]: any } = {};
+      const updatedHistory: {
+        [key: string]: Array<{ text: string; time: string; id: string }>;
+      } = {};
 
       for (const date in history) {
         if (history.hasOwnProperty(date)) {
@@ -463,6 +454,7 @@ export default function Home() {
   async function handleSubmit() {
     if (!copiedText) return;
     confettiRef.current?.fire({});
+    setIsButtonloading(true);
     const {
       data: { session },
     } = await supabase.auth.getSession();
@@ -519,6 +511,8 @@ export default function Home() {
         } else {
           console.log("History updated successfully");
           toast.success("New clip added successfully.");
+          setCopiedText("");
+          setIsButtonloading(false);
         }
       } catch (error) {
         console.error("An unexpected error occurred:", error);
@@ -657,7 +651,9 @@ export default function Home() {
               ref={confettiRef}
               className="absolute left-0 top-0 z-0 size-full"
             />
-            <FlipText className="textTop" key="static-flip-text">CoClip</FlipText>
+            <FlipText className="textTop" key="static-flip-text">
+              CoClip
+            </FlipText>
             {/* <AvatarCirclesDemo /> */}
             <div style={{ scale: "0.9" }}>
               {" "}
@@ -681,6 +677,7 @@ export default function Home() {
                   // Scroll to the bottom of the textarea
                   e.target.scrollTop = e.target.scrollHeight;
                 }}
+                disabled={isButtonLoading}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" && !e.shiftKey) {
                     e.preventDefault();
@@ -725,6 +722,8 @@ export default function Home() {
                 </div>
               </div>
               <div className="bottom">
+                <Pointer className="fill-indigo-300" />
+
                 <div className="scrollableCont" id="scrollableCont">
                   {" "}
                   <div
