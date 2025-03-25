@@ -9,12 +9,19 @@ import { FlipText } from "@/components/magicui/flip-text";
 import { AvatarCircles } from "@/components/magicui/avatar-circles";
 import { Button } from "@/components/ui/button";
 import { AnimatedGradientText } from "@/components/magicui/animated-gradient-text";
-import { ChevronRight, Settings } from "lucide-react";
+import {
+  ChevronRight,
+  Copy,
+  Delete,
+  LucideSquareArrowOutUpRight,
+  Settings,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { AnimatedShinyText } from "@/components/magicui/animated-shiny-text";
 import { Pointer } from "@/components/magicui/pointer";
 import { Confetti, type ConfettiRef } from "@/components/magicui/confetti";
+import { ShinyButton } from "@/components/magicui/shiny-button";
 import {
   ArrowRight,
   ArrowRightIcon,
@@ -33,6 +40,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { supabase } from "@/services/supabase";
 
 const avatars = [
   {
@@ -60,6 +68,81 @@ export function FlipTextDemo() {
 
 export default function Home() {
   const confettiRef = useRef<ConfettiRef>(null);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [signUpLoading, setSignUpLoading] = useState(false);
+  const [loginLoading, setLoginLoading] = useState(false);
+  const [signupSuccessful, setSignupSuccessful] = useState(false);
+  const [loginSuccessful, setLoginSuccessful] = useState(false);
+
+  async function handleSignup() {
+    setSignUpLoading(true);
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          email,
+          password,
+          created_at: new Date(),
+          history: {},
+        },
+      },
+    });
+    insertDataToSupabse();
+    if (error) {
+      console.error("Error signing up:", error.message);
+      setSignUpLoading(false);
+    } else {
+      console.log("Signup successful:", data);
+      setSignUpLoading(false);
+      setSignupSuccessful(true);
+      setTimeout(() => {
+        setSignupSuccessful(false);
+      }, 2000);
+    }
+  }
+  async function insertDataToSupabse() {
+    const {
+      data: { session },
+      error: sessionError,
+    } = await supabase.auth.getSession();
+    const { error: insertError } = await supabase.from("users").insert([
+      {
+        uid: session?.user.id,
+        email,
+        password,
+        created_at: new Date(),
+        history: {},
+      },
+    ]);
+
+    if (insertError) {
+      console.error("Error inserting data:", insertError.message);
+    } else {
+      console.log("Data inserted successfully");
+    }
+  }
+  async function handleLogin() {
+    setLoginLoading(true);
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (error) {
+      console.error("Error logging in:", error.message);
+      setLoginLoading(false);
+    } else {
+      console.log("Login successful:", data);
+      setLoginLoading(false);
+      setLoginSuccessful(true);
+
+      setTimeout(() => {
+        setLoginSuccessful(false);
+      }, 2000);
+    }
+  }
 
   function handleSubmit() {
     confettiRef.current?.fire({});
@@ -77,6 +160,7 @@ export default function Home() {
               height={100}
             ></Image>
           </div>
+          <ShinyButton>GITHUB</ShinyButton>
           <div style={{ display: "flex", flexDirection: "row", gap: "10px" }}>
             <Dialog>
               <DialogTrigger asChild>
@@ -96,37 +180,57 @@ export default function Home() {
                 </DialogHeader>
                 <div className="grid gap-4 py-4">
                   <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="name" className="text-right">
+                    <Label htmlFor="email" className="text-right">
                       Email
                     </Label>
                     <Input
                       id="email"
                       placeholder="Email"
                       className="col-span-3"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
                     />
                   </div>
                   <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="username" className="text-right">
+                    <Label htmlFor="password" className="text-right">
                       Password
                     </Label>
                     <Input
                       id="password"
                       className="col-span-3"
                       placeholder="Password"
+                      type="password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
                     />
                   </div>
                 </div>
                 <DialogFooter>
                   <Button
-                    type="submit"
+                    type="button"
                     variant="outline"
                     className="buttonAuth"
+                    onClick={handleSignup}
+                    disabled={signUpLoading}
                   >
-                    Signup
+                    {signupSuccessful
+                      ? "Done!"
+                      : signUpLoading
+                      ? "Signing up..."
+                      : "Signup"}
                   </Button>
 
-                  <Button type="submit" className="buttonAuth">
-                    Login
+                  <Button
+                    type="button"
+                    className="buttonAuth"
+                    onClick={handleLogin}
+                    disabled={loginLoading}
+                  >
+                    {loginSuccessful
+                      ? "Done!"
+                      : loginLoading
+                      ? "Logging in..."
+                      : "Login"}
                   </Button>
                 </DialogFooter>
               </DialogContent>
@@ -147,7 +251,7 @@ export default function Home() {
             {/* <AvatarCirclesDemo /> */}
             <div style={{ scale: "0.9" }}>
               {" "}
-              <div>
+              <div style={{ cursor: "pointer" }}>
                 <AnimatedGradientTextDemo />
               </div>
             </div>
@@ -180,7 +284,6 @@ export default function Home() {
           <div className="containerOut">
             <div className="retrieveCont">
               <Pointer className="fill-indigo-300" />
-
               <div className="top">
                 <div className="textHeading">Your board</div>
                 <div className="inputSearch">
@@ -188,28 +291,51 @@ export default function Home() {
                   <Input placeholder="Search for item"></Input>
                 </div>
               </div>
+              <div className="bottom">
+                <div className="scrollableCont">
+                  <div className="copied">
+                    <div className="time">2 min ago</div>
+                    <div className="icons">
+                      <div className="item">
+                        <Copy size={16} />
+                      </div>
+                      <div className="item">
+                        <Delete size={16} />
+                      </div>
+                    </div>
+                    <div className="text">i have to complete these things</div>
+                  </div>
+                  <div className="copied">
+                    <div className="time">2 min ago</div>
+                    <div className="icons">
+                      <div className="item">
+                        <Copy size={16} />
+                      </div>
+                      <div className="item">
+                        <Delete size={16} />
+                      </div>
+                    </div>
+                    <div className="text">i have to complete these things</div>
+                  </div>
+                  <div className="copied">
+                    <div className="time">2 min ago</div>
+                    <div className="icons">
+                      <div className="item">
+                        <Copy size={16} />
+                      </div>
+                      <div className="item">
+                        <Delete size={16} />
+                      </div>
+                    </div>
+                    <div className="text">i have to complete these things</div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>{" "}
       </div>
     </>
-  );
-}
-
-export function AnimatedShinyTextDemo() {
-  return (
-    <div className="z-10 flex min-h-64 items-center justify-center">
-      <div
-        className={cn(
-          "group rounded-full border border-black/5 bg-neutral-100 text-base text-white transition-all ease-in hover:cursor-pointer hover:bg-neutral-200 dark:border-white/5 dark:bg-neutral-900 dark:hover:bg-neutral-800"
-        )}
-      >
-        <AnimatedShinyText className="inline-flex items-center justify-center px-4 py-1 transition ease-out hover:text-neutral-600 hover:duration-300 hover:dark:text-neutral-400">
-          <span>✨ Introducing Magic UI</span>
-          <ArrowRightIcon className="ml-1 size-3 transition-transform duration-300 ease-in-out group-hover:translate-x-0.5" />
-        </AnimatedShinyText>
-      </div>
-    </div>
   );
 }
 
