@@ -42,6 +42,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { supabase } from "@/services/supabase";
+import Link from "next/link";
 
 const avatars = [
   {
@@ -65,6 +66,31 @@ export default function Home() {
   const [loginSuccessful, setLoginSuccessful] = useState(false);
   const [copiedText, setCopiedText] = useState("");
   const [userID, setUserID] = useState("");
+
+  async function handleLogout() {
+    const emptyDiv = document.getElementById("emptyDiv");
+    if (emptyDiv) {
+      emptyDiv.style.display = "flex";
+    }
+    setLoginLoading(true);
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      console.error("Error logging out:", error.message);
+      toast.error("An error occurred while logging out. " + error.message);
+      setLoginLoading(false);
+    } else {
+      console.log("Logout successful");
+      toast.success("Logout successful.");
+      setLoginLoading(false);
+      setLoginSuccessful(true);
+      supabase.auth.signOut();
+
+      setTimeout(() => {
+        setLoginSuccessful(false);
+        window.location.reload();
+      }, 1000);
+    }
+  }
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -219,10 +245,8 @@ export default function Home() {
             if (copiedDivs) {
               for (let i = 0; i < copiedDivs.length; i++) {
                 const copiedDiv = copiedDivs[i] as HTMLElement;
-                const textDiv = copiedDiv.getElementsByClassName(
-                  "text"
-                )[0] as HTMLElement;
-                const textContent = textDiv.textContent?.toLowerCase() || "";
+                const textDiv = copiedDiv.querySelector(".text");
+                const textContent = textDiv?.textContent?.toLowerCase() || "";
 
                 if (textContent.includes(searchTerm)) {
                   copiedDiv.style.display = "block";
@@ -331,6 +355,10 @@ export default function Home() {
       toast.success("Login successful.");
       setLoginLoading(false);
       setLoginSuccessful(true);
+      const emptyDiv = document.getElementById("emptyDiv");
+      if (emptyDiv) {
+        emptyDiv.style.display = "none";
+      }
 
       setTimeout(() => {
         setLoginSuccessful(false);
@@ -510,7 +538,11 @@ export default function Home() {
               height={100}
             ></Image>
           </div>
-          <ShinyButton>GITHUB</ShinyButton>
+          <Link href={"https://github.com/divyanshudhruv/coclip"}>
+            <ShinyButton style={{ cursor: "pointer", height: "40px" }}>
+              GITHUB
+            </ShinyButton>
+          </Link>
           <div style={{ display: "flex", flexDirection: "row", gap: "10px" }}>
             <Dialog>
               <DialogTrigger asChild>
@@ -585,9 +617,37 @@ export default function Home() {
                 </DialogFooter>
               </DialogContent>
             </Dialog>
-            <div className="auth">
-              <Settings size={19} />
-            </div>
+            <Dialog>
+              <DialogTrigger asChild>
+                <div>
+                  <div className="auth">
+                    <Settings size={19} />
+                  </div>
+                </div>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[425px]">
+                <DialogHeader>
+                  <DialogTitle>Log out</DialogTitle>
+                  <DialogDescription>
+                    To logout from your account, click the button below.
+                  </DialogDescription>
+                </DialogHeader>
+
+                <DialogFooter>
+                  <Button
+                    type="button"
+                    className="buttonAuth"
+                    onClick={handleLogout}
+                  >
+                    {loginSuccessful
+                      ? "Done!"
+                      : loginLoading
+                      ? "Logging you out..."
+                      : "Logout"}{" "}
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
           </div>
         </div>
         <div className="containerFull">
@@ -613,7 +673,7 @@ export default function Home() {
                 clipboard content.
               </div>
               <Textarea
-                placeholder="Paste your text and press Enter to sync."
+                placeholder="Paste your text here. (Shift + Enter for new line)"
                 className="input"
                 value={copiedText}
                 onChange={(e) => {
@@ -665,7 +725,25 @@ export default function Home() {
                 </div>
               </div>
               <div className="bottom">
-                <div className="scrollableCont" id="scrollableCont"></div>
+                <div className="scrollableCont" id="scrollableCont">
+                  {" "}
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      flexDirection: "column",
+                      width: "100%",
+                      height: "fit-content",
+                    }}
+                    id="emptyDiv"
+                  >
+                    <div className="date">History</div>
+                    <div className="dateText">
+                      Sign in to start using CoClip effortlessly{" "}
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -693,7 +771,7 @@ export function AnimatedGradientTextDemo() {
       />
       🎉 <hr className="mx-2 h-4 w-px shrink-0 bg-neutral-500" />
       <AnimatedGradientText className="text-sm font-medium">
-        Introducing CoClip AI
+        Introducing CoClip
       </AnimatedGradientText>
       <ChevronRight
         className="ml-1 size-4 stroke-neutral-500 transition-transform

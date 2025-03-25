@@ -135,6 +135,10 @@ html {
     width: 470px;
     height: 190px;
     padding-bottom: 50px !important;
+
+    &::-webkit-scrollbar {
+        display: none;
+    }
 }
 
 .textSmall {
