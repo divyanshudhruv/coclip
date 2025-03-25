@@ -134,6 +134,7 @@ html {
     border-radius: 15px;
     width: 470px;
     height: 190px;
+    padding-bottom: 50px !important;
 }
 
 .textSmall {
@@ -338,7 +339,6 @@ html {
 
 .containerOut .bottom .scrollableCont {
     width: 100%;
-    height: 700px;
     background-color: transparent;
     display: flex;
     flex-direction: column;
@@ -347,22 +347,55 @@ html {
     justify-content: start;
     padding-top: 20px;
     padding-bottom: 20px;
+    overflow-y: auto !important;
+    overflow-x: hidden;
     gap: 5px;
 
+    &::-webkit-scrollbar {
+        width: 5px;
+    }
 
-    .time {
-        display: flex;
-        position: relative;
-        width: fit-content;
-        height: fit-content;
-        font-family: "Plus Jakarta Sans", sans-serif;
-        color: #828283;
-        font-weight: 500;
-        font-size: 12px;
-        margin-bottom: 8px;
+    &::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background: #c1c1c1;
+    }
+
+    &::-webkit-scrollbar-thumb:hover {
+        background: #c1c1c1;
     }
 
 
+
+
+
+}
+
+.time {
+    display: flex;
+    position: relative;
+    width: fit-content;
+    height: fit-content;
+    font-family: "Plus Jakarta Sans", sans-serif;
+    color: #828283;
+    font-weight: 500;
+    font-size: 12px;
+    margin-bottom: 8px;
+}
+
+.date {
+    display: flex;
+    position: relative;
+    width: fit-content;
+    height: fit-content;
+    font-family: "Plus Jakarta Sans", sans-serif;
+    color: #828283;
+    font-weight: 500;
+    font-size: 12px;
+    margin-bottom: 10px;
+    margin-left: 10px;
 
 }
 
@@ -370,8 +403,8 @@ html {
     display: flex;
     position: relative;
     width: 100%;
-    height: fit-content;
-    min-height: 70px;
+    height: fit-content !important;
+    max-height: fit-content !important;
     background-color: transparent;
     align-items: start;
     justify-content: space-between;
@@ -382,6 +415,10 @@ html {
 
     &:hover {
         background-color: #f3f3f7
+    }
+
+    &:nth-child(odd) {
+        background-color: #f3f3f780;
     }
 
     .text {
@@ -396,33 +433,37 @@ html {
         font-size: 15px;
     }
 
-    .icons {
+
+}
+
+.icons {
+    display: flex;
+    position: absolute;
+    right: 20px;
+    top: 12.5px;
+    width: fit-content;
+    height: 100%;
+    flex-direction: row;
+    align-items: start;
+    justify-content: center;
+    gap: 5px;
+    color: #737374;
+
+    .item {
         display: flex;
-        position: absolute;
-        right: 20px;
-        top: 12.5px;
-        width: fit-content;
-        height: 100%;
-        flex-direction: row;
-        align-items: start;
+        align-items: center;
         justify-content: center;
-        gap: 5px;
-        color: #737374;
+        position: relative;
+        width: 27px;
+        height: 27px;
+        border-radius: 6px;
+        transition: .2s;
+        background-color: #f2f2f700;
+        cursor: pointer;
 
-        .item{
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            padding: 4px;
-            border-radius: 6px;
-            transition: .2s;
-            background-color: #f2f2f700;
-
-            &:hover{
-                background-color: #e5e5e5;
-                color: #737374;
-            }
+        &:hover {
+            background-color: #e5e5e5;
+            color: #737374;
         }
     }
 }

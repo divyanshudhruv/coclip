@@ -17,7 +17,7 @@ import {
   Settings,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AnimatedShinyText } from "@/components/magicui/animated-shiny-text";
 import { Pointer } from "@/components/magicui/pointer";
 import { Confetti, type ConfettiRef } from "@/components/magicui/confetti";
@@ -74,6 +74,167 @@ export default function Home() {
   const [loginLoading, setLoginLoading] = useState(false);
   const [signupSuccessful, setSignupSuccessful] = useState(false);
   const [loginSuccessful, setLoginSuccessful] = useState(false);
+  const [copiedText, setCopiedText] = useState("");
+  const [userID, setUserID] = useState("");
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user?.id) {
+        setUserID(session.user.id);
+      }
+    });
+  }, []);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user?.id) {
+        setUserID(session.user.id);
+      }
+    });
+
+    async function loadHistory() {
+      if (userID) {
+        const { data: userData, error: userError } = await supabase
+          .from("users")
+          .select("history")
+          .eq("uid", userID)
+          .single();
+
+        if (userError) {
+          console.error("Error fetching user data:", userError.message);
+          return;
+        }
+
+        const historyData = userData?.history || {};
+        const scrollableCont = document.getElementById("scrollableCont");
+
+        if (scrollableCont) {
+          scrollableCont.innerHTML = "";
+
+          for (const date in historyData) {
+            if (historyData.hasOwnProperty(date)) {
+              const clips = historyData[date];
+
+              const dateDiv = document.createElement("div");
+              dateDiv.className = "date";
+              dateDiv.textContent = date;
+              scrollableCont.appendChild(dateDiv);
+
+              clips.forEach(
+                (clip: { text: string; time: string; id: string }) => {
+                  const copiedDiv = document.createElement("div");
+                  copiedDiv.className = "copied";
+                  copiedDiv.style.marginBottom = "5px";
+
+                  const timeDiv = document.createElement("div");
+                  timeDiv.className = "time";
+                  const clipTime = new Date();
+                  const now = new Date();
+                  const diff = now.getTime() - clipTime.getTime();
+                  const minutes = Math.floor(diff / (1000 * 60));
+
+                  const hours = Math.floor(diff / (1000 * 60 * 60));
+
+                  let timeAgo;
+                  if (minutes < 60) {
+                    timeAgo =
+                      minutes === 1
+                        ? `${minutes} min ago`
+                        : `${minutes} mins ago`;
+                  } else if (hours < 24) {
+                    timeAgo =
+                      hours === 1 ? `${hours} hr ago` : `${hours} hrs ago`;
+                  } else {
+                    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                    timeAgo =
+                      days === 1 ? `${days} day ago` : `${days} days ago`;
+                  }
+
+                  timeDiv.textContent = timeAgo;
+                  copiedDiv.appendChild(timeDiv);
+
+                  const iconsDiv = document.createElement("div");
+                  iconsDiv.className = "icons";
+
+                  const copyDiv = document.createElement("div");
+                  copyDiv.className = "item";
+                  copyDiv.id = `copy`;
+                  copyDiv.setAttribute("data-clip-id", clip.id);
+                  copyDiv.onclick = async () => {
+                    const copiedTextValue = await copyClipFromHistory(
+                      clip.id,
+                      userID
+                    );
+                    if (copiedTextValue) {
+                      try {
+                        await navigator.clipboard.writeText(copiedTextValue);
+                        console.log("Text copied to clipboard");
+                      } catch (err) {
+                        console.error("Failed to copy text: ", err);
+                      }
+                    }
+                  };
+                  const copyIcon = document.createElement("div");
+                  (copyIcon.innerHTML =
+                    '<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 20 20"><path fill="currentColor" d="M6 6V2c0-1.1.9-2 2-2h10a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-4v4a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V8c0-1.1.9-2 2-2h4zm2 0h4a2 2 0 0 1 2 2v4h4V2H8v4zM2 8v10h10V8H2z"/></svg>'),
+                    copyDiv.appendChild(copyIcon);
+                  iconsDiv.appendChild(copyDiv);
+
+                  const deleteDiv = document.createElement("div");
+                  deleteDiv.className = "item";
+                  deleteDiv.id = "delete";
+                  deleteDiv.setAttribute("data-clip-id", clip.id);
+                  deleteDiv.onclick = () =>
+                    deleteClipFromHistory(clip.id, userID);
+                  const deleteIcon = document.createElement("div");
+                  (deleteIcon.innerHTML =
+                    '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="m13.5 10l4 4m0-4l-4 4m6.095 4.5H9.298a2 2 0 0 1-1.396-.568l-5.35-5.216a1 1 0 0 1 0-1.432l5.35-5.216A2 2 0 0 1 9.298 5.5h10.297c.95 0 2.223.541 2.223 1.625v9.75c0 1.084-1.273 1.625-2.223 1.625Z"/></svg>'),
+                    deleteDiv.appendChild(deleteIcon);
+                  iconsDiv.appendChild(deleteDiv);
+
+                  copiedDiv.appendChild(iconsDiv);
+
+                  const textDiv = document.createElement("div");
+                  textDiv.className = "text";
+                  textDiv.textContent =
+                    clip.text.length > 100
+                      ? clip.text.substring(0, 100) + "..."
+                      : clip.text;
+                  copiedDiv.appendChild(textDiv);
+
+                  scrollableCont.appendChild(copiedDiv);
+                }
+              );
+            }
+          }
+        }
+      }
+    }
+
+    loadHistory();
+
+    if (userID) {
+      const historySubscription = supabase
+        .channel("any")
+        .on(
+          "postgres_changes",
+          {
+            event: "*",
+            schema: "public",
+            table: "users",
+            filter: `uid=eq.${userID}`,
+          },
+          (payload: { new: { history?: { [key: string]: any } } }) => {
+            loadHistory();
+          }
+        )
+        .subscribe();
+
+      return () => {
+        supabase.removeChannel(historySubscription);
+      };
+    }
+  }, [userID]);
 
   async function handleSignup() {
     setSignUpLoading(true);
@@ -102,6 +263,7 @@ export default function Home() {
       }, 2000);
     }
   }
+
   async function insertDataToSupabse() {
     const {
       data: { session },
@@ -144,8 +306,163 @@ export default function Home() {
     }
   }
 
-  function handleSubmit() {
+  async function deleteClipFromHistory(clipId: string, userId: string) {
+    try {
+      const { data: user, error: userError } = await supabase
+        .from("users")
+        .select("history")
+        .eq("uid", userId)
+        .single();
+
+      if (userError) {
+        console.error("Error fetching user:", userError);
+        return false;
+      }
+
+      if (!user || !user.history) {
+        console.warn("User or history not found.");
+        return false;
+      }
+
+      const history = user.history;
+
+      let updatedHistory: { [key: string]: any } = {};
+
+      for (const date in history) {
+        if (history.hasOwnProperty(date)) {
+          const clips = history[date];
+          const updatedClips = clips.filter(
+            (clip: { id: string }) => clip.id !== clipId
+          );
+          if (updatedClips.length > 0) {
+            updatedHistory[date] = updatedClips;
+          }
+        }
+      }
+
+      const { error: updateError } = await supabase
+        .from("users")
+        .update({ history: updatedHistory })
+        .eq("uid", userId);
+
+      if (updateError) {
+        console.error("Error updating user:", updateError);
+        return false;
+      }
+
+      console.log("Clip deleted from history.");
+      return true;
+    } catch (error) {
+      console.error("An error occurred:", error);
+      return false;
+    }
+  }
+
+  async function copyClipFromHistory(clipId: string, userId: string) {
+    try {
+      const { data: user, error: userError } = await supabase
+        .from("users")
+        .select("history")
+        .eq("uid", userId)
+        .single();
+
+      if (userError) {
+        console.error("Error fetching user:", userError);
+        return null;
+      }
+
+      if (!user || !user.history) {
+        console.warn("User or history not found.");
+        return null;
+      }
+
+      const history = user.history;
+
+      for (const date in history) {
+        if (history.hasOwnProperty(date)) {
+          const clips = history[date];
+          const clipToCopy = clips.find(
+            (clip: { id: string }) => clip.id === clipId
+          );
+
+          if (clipToCopy) {
+            console.log("Clip found:", clipToCopy.text);
+            return clipToCopy.text;
+          }
+        }
+      }
+
+      console.log("Clip not found in history.");
+      return null;
+    } catch (error) {
+      console.error("An error occurred:", error);
+      return null;
+    }
+  }
+  async function handleSubmit() {
+    if (!copiedText) return;
     confettiRef.current?.fire({});
+
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+    const userId = session?.user.id;
+    const today = new Date();
+    const day = today.getDate();
+    const month = today.toLocaleString("default", { month: "long" });
+    const year = today.getFullYear();
+    const formattedDate = `${day}${
+      day === 1 || day === 21 || day === 31
+        ? "st"
+        : day === 2 || day === 22
+        ? "nd"
+        : day === 3 || day === 23
+        ? "rd"
+        : "th"
+    } ${month} ${year}`;
+
+    if (userId) {
+      try {
+        const { data: userData, error: userError } = await supabase
+          .from("users")
+          .select("history")
+          .eq("uid", userId)
+          .single();
+
+        if (userError) {
+          console.error("Error fetching user data:", userError.message);
+          return;
+        }
+
+        const existingHistory = userData?.history || {};
+
+        const updatedHistory = { ...existingHistory };
+        const clipObject = {
+          text: copiedText,
+          time: "1 min ago",
+          id: Math.floor(100000 + Math.random() * 900000).toString(),
+        };
+
+        if (updatedHistory[formattedDate]) {
+          updatedHistory[formattedDate].push(clipObject);
+        } else {
+          updatedHistory[formattedDate] = [clipObject];
+        }
+
+        const { error: updateError } = await supabase
+          .from("users")
+          .update({ history: updatedHistory })
+          .eq("uid", userId);
+
+        if (updateError) {
+          console.error("Error updating history:", updateError.message);
+        } else {
+          console.log("History updated successfully");
+        }
+      } catch (error) {
+        console.error("An unexpected error occurred:", error);
+      }
+    }
   }
 
   return (
@@ -265,9 +582,25 @@ export default function Home() {
               <Textarea
                 placeholder="Paste your text and press Enter to sync."
                 className="input"
+                value={copiedText}
+                onChange={(e) => {
+                  setCopiedText(e.target.value);
+                  // Scroll to the bottom of the textarea
+                  e.target.scrollTop = e.target.scrollHeight;
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
+                    handleSubmit();
+                  }
+                }}
+                spellCheck={false}
               ></Textarea>
               <div className="buttonCont">
-                <Button className="bg-white text-[#737373] border border-[#E5E5E5] button">
+                <Button
+                  className="bg-white text-[#737373] border border-[#E5E5E5] button"
+                  onClick={() => window.location.reload()}
+                >
                   Retrieve <CloudDownload />
                 </Button>
                 <Button
@@ -283,52 +616,17 @@ export default function Home() {
           </div>
           <div className="containerOut">
             <div className="retrieveCont">
-              <Pointer className="fill-indigo-300" />
               <div className="top">
-                <div className="textHeading">Your board</div>
+                {" "}
+                <div className="textHeading">Your board</div>{" "}
                 <div className="inputSearch">
                   {" "}
                   <Input placeholder="Search for item"></Input>
                 </div>
               </div>
               <div className="bottom">
-                <div className="scrollableCont">
-                  <div className="copied">
-                    <div className="time">2 min ago</div>
-                    <div className="icons">
-                      <div className="item">
-                        <Copy size={16} />
-                      </div>
-                      <div className="item">
-                        <Delete size={16} />
-                      </div>
-                    </div>
-                    <div className="text">i have to complete these things</div>
-                  </div>
-                  <div className="copied">
-                    <div className="time">2 min ago</div>
-                    <div className="icons">
-                      <div className="item">
-                        <Copy size={16} />
-                      </div>
-                      <div className="item">
-                        <Delete size={16} />
-                      </div>
-                    </div>
-                    <div className="text">i have to complete these things</div>
-                  </div>
-                  <div className="copied">
-                    <div className="time">2 min ago</div>
-                    <div className="icons">
-                      <div className="item">
-                        <Copy size={16} />
-                      </div>
-                      <div className="item">
-                        <Delete size={16} />
-                      </div>
-                    </div>
-                    <div className="text">i have to complete these things</div>
-                  </div>
+                <div className="scrollableCont" id="scrollableCont">
+                  {" "}
                 </div>
               </div>
             </div>
