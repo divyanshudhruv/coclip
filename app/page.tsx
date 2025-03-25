@@ -543,7 +543,10 @@ export default function Home() {
               height={100}
             ></Image>
           </div>
-          <Link href={"https://github.com/divyanshudhruv/coclip"}>
+          <Link
+            href={"https://github.com/divyanshudhruv/coclip"}
+            className="navButton"
+          >
             <ShinyButton style={{ cursor: "pointer", height: "40px" }}>
               GITHUB
             </ShinyButton>
@@ -730,6 +733,7 @@ export default function Home() {
                   <Input
                     placeholder="Search for item"
                     id="searchForItem"
+                    className="scrollableSearch"
                   ></Input>
                 </div>
               </div>
